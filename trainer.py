@@ -1,22 +1,18 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer, AutoModel
 from datasets import Dataset
-import markdown
+from peft import LoraConfig, get_peft_model
 import json, os
 import random
 import numpy as np
         
 
-def treinar_com_artigos(arquivo_json, artigos):
-    dados = {}
-    with open(arquivo_json, 'r') as arqv:
-        dados = json.load(arqv)
-
+def treinar_com_artigos(dados, artigos):
     auto_tokenizer = None
     model = None
     
     if not os.path.exists(os.path.join("models", "fine-tune-petros")):
-        auto_tokenizer = AutoTokenizer.from_pretrained('gpt-2')
-        model = AutoModelForCausalLM.from_pretrained('gpt-2')
+        auto_tokenizer = AutoTokenizer.from_pretrained('distilbert/distilgpt2')
+        model = AutoModelForCausalLM.from_pretrained('distilbert/distilgpt2')
 
     else:
         auto_tokenizer = AutoTokenizer.from_pretrained(os.path.join("models", 'fine-tune-petros'))
@@ -28,8 +24,8 @@ def treinar_com_artigos(arquivo_json, artigos):
     treino = np.array(artigos, dtype=object)[dados['train']].tolist()
     avaliacao = np.array(artigos, dtype=object)[dados['eval']].tolist()
     
-    treinamento_dataset = Dataset.from_list(treino)
-    avaliacao_dataset = Dataset.from_list(avaliacao)
+    treinamento_dataset = Dataset.from_list(list(map(lambda x:x.text, treino)))
+    avaliacao_dataset = Dataset.from_list(list(map(lambda x:x.text, avaliacao)))
 
     tokenized_treinamento_dataset = treinamento_dataset.map(tokenize_function, batched=True)
     tokenized_avaliacao_dataset = avaliacao_dataset.map(tokenize_function, batched=True)
@@ -64,6 +60,8 @@ def treinar_com_artigos(arquivo_json, artigos):
         eval_dataset=tokenized_avaliacao_dataset,
         tokenizer = auto_tokenizer
     )
+
+    print("Training...")
 
     trainer.train()
     model.save_pretrained(os.path.join("models", "fine-tune-petros"))   

@@ -1,28 +1,19 @@
 import wikipediaapi
 import random
 import json
-
-wiki = wikipediaapi.Wikipedia(
-    language='pt',
-    extract_format=wikipediaapi.ExtractFormat.WIKI,  # Formato do texto
-    user_agent="Mozilla/5.0 (pvasx123@gmail.com)"  # Identificação
-
-)
-
-# Página da categoria "Matemática"
-categoria = wiki.page("Categoria:Matemática")
+import os
 
 def extrair_artigos_da_categoria(categoria, depth=0):
     artigos = []
     # Pega todos os artigos da categoria
     i = 0
     for page in categoria.categorymembers.values():
-        print(i, depth)
         i += 1
-        if page.ns == wikipediaapi.Namespace.MAIN:  # Filtra apenas artigos (não subcategorias)
+        if page.ns == wikipediaapi.Namespace.MAIN and page not in set(artigos):  # Filtra apenas artigos (não subcategorias)
             artigos.append(page)
-        elif page.ns == wikipediaapi.Namespace.CATEGORY and depth <= 2:  # Entra em subcategorias recursivamente
+        elif page.ns == wikipediaapi.Namespace.CATEGORY and depth < 2:  # Entra em subcategorias recursivamente
             artigos += extrair_artigos_da_categoria(page, depth+1)
+    
     return artigos
 
 def salvar_dados(artigos):
@@ -38,4 +29,4 @@ def salvar_dados(artigos):
     data['eval'] = test_idx
 
     with open(os.path.join("data", "train.json"), 'w') as json_file:
-        json.dump(json_file, data)
+        json.dump(data, json_file)
