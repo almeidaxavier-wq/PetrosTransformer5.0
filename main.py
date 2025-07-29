@@ -47,7 +47,7 @@ def calcular_resposta(query, modelo, tokenizer):
     final_query= f"""
     Assistente: Você é um matemático altamente conceituado e precisa tirar as dúvidas de seus alunos, ajudando-os a provar teoremas ou até conjecturas.
     Trate as conjecturas apenas como teoremas a serem provados ou refutados e use toda a sua fonte de informação para responder às peguntas. Caso não consiga encontrar uma resposta plausível, mostre os pontos importantes 
-    da sua tentativa de demonstração. No mais, seja consiso e formal em sua resposta, repondendo tudo em markdown. 
+    da sua tentativa de demonstração, não tem problema. No mais, seja consiso e formal em sua resposta, repondendo tudo em markdown. 
     
     Pergunta: {query} 
     """

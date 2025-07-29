@@ -1,15 +1,7 @@
 from transformers import AutoTokenizer, AutoModelForCausalLM, TrainingArguments, Trainer, AutoModel
 from datasets import Dataset
 from peft import LoraConfig, get_peft_model
-import json, os
-import random
-import numpy as np
-
-incrementer = 0
-def inc(x):
-    incrementer += 1
-    print(incrementer)
-    return x.text
+import os
         
 
 def treinar_com_artigos(dados, artigos):
@@ -27,12 +19,12 @@ def treinar_com_artigos(dados, artigos):
     def tokenize_function(examples):
         return auto_tokenizer(examples.text, padding="max_length", truncation=True, max_lenght=128)
 
-    treino = np.array(artigos, dtype=object)[dados['train']].tolist()
-    avaliacao = np.array(artigos, dtype=object)[dados['eval']].tolist()
+    treino = {'text': [artigos[i].text for i in dados['train']]}
+    avaliacao = {'text': [artigos[i].text for i in dados['eval']]}
     
     print("Creating datasets")
-    treinamento_dataset = Dataset.from_list(list(map(incrementer, treino)))
-    avaliacao_dataset = Dataset.from_list(list(map(incrementer, avaliacao)))
+    treinamento_dataset = Dataset.from_dict(treino)
+    avaliacao_dataset = Dataset.from_dict(avaliacao)
     print("Finished Creating Datasets")
 
     tokenized_treinamento_dataset = treinamento_dataset.map(tokenize_function, batched=True)
