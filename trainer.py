@@ -4,6 +4,12 @@ from peft import LoraConfig, get_peft_model
 import json, os
 import random
 import numpy as np
+
+incrementer = 0
+def inc(x):
+    incrementer += 1
+    print(incrementer)
+    return x.text
         
 
 def treinar_com_artigos(dados, artigos):
@@ -24,8 +30,10 @@ def treinar_com_artigos(dados, artigos):
     treino = np.array(artigos, dtype=object)[dados['train']].tolist()
     avaliacao = np.array(artigos, dtype=object)[dados['eval']].tolist()
     
-    treinamento_dataset = Dataset.from_list(list(map(lambda x:x.text, treino)))
-    avaliacao_dataset = Dataset.from_list(list(map(lambda x:x.text, avaliacao)))
+    print("Creating datasets")
+    treinamento_dataset = Dataset.from_list(list(map(incrementer, treino)))
+    avaliacao_dataset = Dataset.from_list(list(map(incrementer, avaliacao)))
+    print("Finished Creating Datasets")
 
     tokenized_treinamento_dataset = treinamento_dataset.map(tokenize_function, batched=True)
     tokenized_avaliacao_dataset = avaliacao_dataset.map(tokenize_function, batched=True)
